@@ -41,6 +41,40 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function loadActivities() {
+    activitiesList.innerHTML = "<p>Loading activities...</p>";
+
+    try {
+      const response = await fetch("/api/activities");
+      const activities = await response.json();
+
+      if (!activities.length) {
+        activitiesList.innerHTML = "<p>No activities available.</p>";
+        return;
+      }
+
+      activitiesList.innerHTML = "";
+      activities.forEach((activity) => {
+        const card = document.createElement("div");
+        card.className = "activity-card";
+
+        card.innerHTML = `
+          <h4>${activity.name}</h4>
+          <p>${activity.description}</p>
+          <div class="activity-participants">
+            <h5>Participants</h5>
+            <ul>
+              ${activity.participants.map((email) => `<li>${email}</li>`).join("")}
+            </ul>
+          </div>
+        `;
+        activitiesList.appendChild(card);
+      });
+    } catch (error) {
+      activitiesList.innerHTML = '<p class="error">Failed to load activities.</p>';
+    }
+  }
+
   // Handle form submission
   signupForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -83,4 +117,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize app
   fetchActivities();
+  loadActivities();
 });
